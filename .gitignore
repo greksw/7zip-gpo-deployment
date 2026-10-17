@@ -1,0 +1,14 @@
+# Never commit machine or directory environment information, MSI binaries or logs.
+*.msi
+*.exe
+*.log
+*.tmp
+*.bak
+*.pfx
+*.p12
+*.key
+*.kdbx
+.deploy/
+.cache/
+__pycache__/
+.DS_Store
