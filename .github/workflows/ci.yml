@@ -1,0 +1,28 @@
+name: Static validation
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Parse PowerShell sources (syntax only)
+        shell: pwsh
+        run: |
+          $bad = $false
+          Get-ChildItem . -Recurse -Filter '*.ps1' -File | ForEach-Object {
+            $tokens = $null; $errors = $null
+            [void][System.Management.Automation.Language.Parser]::ParseFile($_.FullName,[ref]$tokens,[ref]$errors)
+            foreach ($error in $errors) { Write-Error "$($_.FullName): $error"; $bad=$true }
+          }
+          if ($bad) { exit 1 }
+      - name: Parse JSON examples
+        shell: pwsh
+        run: |
+          Get-ChildItem . -Recurse -Filter '*.json' -File | ForEach-Object {
+            $null = Get-Content -LiteralPath $_.FullName -Raw | ConvertFrom-Json -ErrorAction Stop
+          }
